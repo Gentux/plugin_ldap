@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 
-	nan "nanocloud.com/lib/libnan"
-
 	"os/exec"
+
+	//todo vendor this dependency
+	nan "nanocloud.com/plugins/ldap/libnan"
 )
 
 var ()

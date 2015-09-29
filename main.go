@@ -10,7 +10,8 @@ import (
 
 	"github.com/dullgiulio/pingo"
 
-	nan "nanocloud.com/lib/libnan"
+	//todo vendor this dependency
+	nan "nanocloud.com/plugins/ldap/libnan"
 )
 
 type LDAPConfig struct {
