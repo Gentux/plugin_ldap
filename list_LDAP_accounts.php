@@ -24,7 +24,7 @@ include './connection.php';
 $ldap_connection = connect_AD();
 
 // Our DN
-$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=nanocloud,DC=com';
+$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com';
 
 // This filter will get all the users
 $search_filter = '(&(objectCategory=person)(samaccountname=*))';

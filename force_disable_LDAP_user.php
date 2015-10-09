@@ -24,7 +24,7 @@ include './connection.php';
 $ldap_connection = connect_AD();
 
 // Our DN
-$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=nanocloud,DC=com';
+$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com';
 
 // Command line parameters
 $email = $argv[1];

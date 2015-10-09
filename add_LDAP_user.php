@@ -24,7 +24,7 @@ include './connection.php';
 $ldap_connection = connect_AD();
 
 // Our DN
-$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=nanocloud,DC=com';
+$ldap_base_dn = 'OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com';
 
 
 // Command line parameters
@@ -64,7 +64,7 @@ if ($count_disabled_account) {
 
   $count_users = ldap_count_entries($ldap_connection, $result);
   $cn = "demo" . sprintf('%04d', ++$count_users);
-  $dn = "CN=$cn,OU=NanocloudUsers,DC=intra,DC=nanocloud,DC=com";
+  $dn = "CN=$cn,OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com";
 
   $ldaprecord["CN"] = $cn;
   $ldaprecord["givenName"] = $cn;
@@ -77,7 +77,7 @@ if ($count_disabled_account) {
     exit(1);
   }
 
-  $sr = ldap_search($ldap_connection,"OU=NanocloudUsers,DC=intra,DC=nanocloud,DC=com","cn=$cn");
+  $sr = ldap_search($ldap_connection,"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com","cn=$cn");
   $info = ldap_get_entries($ldap_connection,$sr);
   $sam_account_name =  $info[0]["samaccountname"][0];
 }
