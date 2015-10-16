@@ -47,6 +47,11 @@ type AccountParams struct {
 	Password  string
 }
 
+type ChangePasswordParams struct {
+	SamAccountName string
+	NewPassword    string
+}
+
 type Ldap struct{}
 
 var (
@@ -191,6 +196,27 @@ func (p *Ldap) DisableAccount(jsonParams string, pOutMsg *string) error {
 		*pOutMsg = "1" // success
 	}
 
+	return nil
+}
+
+func (p *Ldap) ChangePassword(jsonParams string, pOutMsg *string) error {
+	var params ChangePasswordParams
+	*pOutMsg = "0"
+
+	if e := json.Unmarshal([]byte(jsonParams), &params); e != nil {
+		return answerWithError(pOutMsg, "ChangePassword() failed ", e)
+	}
+
+	cmd := exec.Command("/usr/bin/php", "changepw_LDAP_user.php", params.SamAccountName, params.NewPassword)
+	cmd.Dir = g_LDAPConfig.ScriptsDir
+
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Printf("Failed to run script changepw_LDAP_user.php for sam <%s>, error: %s, output: %s\n", params.SamAccountName, err, string(out))
+		return err
+	}
+
+	*pOutMsg = "1"
 	return nil
 }
 
