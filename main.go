@@ -46,6 +46,7 @@ import (
 	"fmt"
 	"gopkg.in/ldap.v2"
 	"log"
+	"os/exec"
 	"strconv"
 	"unicode"
 	"unicode/utf16"
