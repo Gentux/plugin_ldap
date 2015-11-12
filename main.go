@@ -359,16 +359,16 @@ func CreateNewUser(conf2 ldap_conf, pOutMsg *string, params AccountParams, count
 	if err != nil {
 		return answerWithError(pOutMsg, "Modify error: ", err)
 	}
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+	ldapConnection, err = ldap.DialTLS("tcp", conf2.host[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return answerWithError("Dial error: ", err)
+		return answerWithError(pOutMsg, "Dial error: ", err)
 	}
-	err = ldapConnection.Bind(conf.Username, conf.Password)
+	err = ldapConnection.Bind(conf2.login, conf2.passwd)
 	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return answerWithError(pOutMsg, "Binding error: ", err)
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
@@ -380,10 +380,11 @@ func CreateNewUser(conf2 ldap_conf, pOutMsg *string, params AccountParams, count
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Search error: ", err)
+		return answerWithError(pOutMsg, "Search error: ", err)
 	}
 	for _, entry := range sr.Entries {
 		log.Println(entry.GetAttributeValue("sAMAccountName"))
+		*pOutMsg = entry.GetAttributeValue("sAMAccountName")
 	}
 	return nil
 
@@ -406,7 +407,7 @@ func EncodePassword(pass string) []byte {
 	return pwd
 }
 
-func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, pOutMsg *string, cn string) error {
+func RecycleSam(conf ldap_conf, params AccountParams, ldapConnection *ldap.Conn, pOutMsg *string, cn string) error {
 	if pOutMsg == nil {
 		return answerWithError(pOutMsg, "PoutMsg is nil", nil)
 	}
@@ -419,16 +420,16 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, pOutMsg *string
 	if err != nil {
 		return answerWithError(pOutMsg, "Modify error: ", err)
 	}
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+	ldapConnection, err = ldap.DialTLS("tcp", conf.host[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return answerWithError("Dial error: ", err)
+		return answerWithError(pOutMsg, "Dial error: ", err)
 	}
-	err = ldapConnection.Bind(conf.Username, conf.Password)
+	err = ldapConnection.Bind(conf.login, conf.passwd)
 	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return answerWithError(pOutMsg, "Binding error: ", err)
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
@@ -440,10 +441,11 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, pOutMsg *string
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Search error: ", err)
+		return answerWithError(pOutMsg, "Search error: ", err)
 	}
 	for _, entry := range sr.Entries {
 		log.Println(entry.GetAttributeValue("sAMAccountName"))
+		*pOutMsg = entry.GetAttributeValue("sAMAccountName")
 	}
 	return nil
 }
@@ -602,14 +604,12 @@ func (p *Ldap) AddUser(jsonParams string, pOutMsg *string) error {
 		//C._ldap_mods_free(&mods[0], 1)   Should work but doesnt...
 	} else {
 		// If a disabled account is found, modifying this account instead of creating a new one
-		err = RecycleSam(params, ldapConnection, pOutMsg, cn)
+		err = RecycleSam(conf, params, ldapConnection, pOutMsg, cn)
 		if err != nil {
 			return err
 		}
 
 	}
-
-	*pOutMsg = params.UserEmail + " added"
 
 	return nil
 }
